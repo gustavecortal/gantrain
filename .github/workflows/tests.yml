@@ -1,0 +1,32 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-latest, python: "3.10", torch: "--index-url https://download.pytorch.org/whl/cpu"}
+          - {os: ubuntu-latest, python: "3.13", torch: "--index-url https://download.pytorch.org/whl/cpu"}
+          - {os: windows-latest, python: "3.12", torch: "--index-url https://download.pytorch.org/whl/cpu"}
+          # PyPI's macOS build is the CPU and Apple GPU (MPS) one.
+          - {os: macos-latest, python: "3.12", torch: ""}
+    env:
+      GANTRAIN_DEVICE: cpu
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+      - run: uv venv --python ${{ matrix.python }}
+      - run: uv pip install torch torchvision ${{ matrix.torch }}
+      - run: uv pip install -e ".[dev]"
+      - run: uv run --no-sync ruff check src tests
+      - run: uv run --no-sync pytest tests -q

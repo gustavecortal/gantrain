@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "Please cite gantrain when using it in research, software, or creative work."
+type: software
+version: "0.1.0"
+date-released: "2026-10-07"
+title: "gantrain: Train a FastGAN on your own photographs, on one GPU"
+authors:
+  - family-names: Cortal
+    given-names: Gustave
+abstract: >-
+  gantrain trains FastGAN generative adversarial networks (GANs) on a personal
+  photo collection, on one GPU, up to 3072x2048. It curates the photographs,
+  trains, samples, and evaluates whether the generator makes new images rather
+  than copies. Its checkpoints play live in ganlive.
+repository-code: "https://github.com/gustavecortal/gantrain"
+url: "https://github.com/gustavecortal/gantrain"
+license: MIT
+keywords:
+  - generative adversarial networks
+  - FastGAN
+  - few-shot image generation
+  - high-resolution image synthesis
+  - generative art
