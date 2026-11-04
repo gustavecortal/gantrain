@@ -3,7 +3,7 @@ message: "Please cite gantrain when using it in research, software, or creative 
 type: software
 version: "0.1.0"
 date-released: "2026-10-07"
-title: "gantrain: Train a FastGAN on your own photographs, on one GPU"
+title: "gantrain: train a FastGAN on your own photographs, on one GPU"
 authors:
   - family-names: Cortal
     given-names: Gustave
