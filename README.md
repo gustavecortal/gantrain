@@ -8,8 +8,6 @@ gantrain trains a [FastGAN](https://arxiv.org/abs/2101.04775) on your own photog
 
 ## Quick start
 
-With Python 3.10 to 3.13 and [uv](https://docs.astral.sh/uv/getting-started/installation/), on an NVIDIA, AMD, Intel or Apple GPU.
-
 ### 1. Install
 
 ```bash
