@@ -8,7 +8,7 @@ gantrain trains a [FastGAN](https://arxiv.org/abs/2101.04775) on your own photog
 
 ## Quick start
 
-Requires Python 3.10 to 3.13 and [uv](https://docs.astral.sh/uv/getting-started/installation/). Runs on Windows, macOS and Linux, with an NVIDIA, AMD, Intel or Apple GPU, or the CPU.
+With Python 3.10 to 3.13 and [uv](https://docs.astral.sh/uv/getting-started/installation/), on an NVIDIA, AMD, Intel or Apple GPU.
 
 ### 1. Install
 
@@ -30,7 +30,7 @@ uv pip install -e .
 uv run --no-sync gantrain curate path/to/photos --out data/curated
 ```
 
-Exact and near-identical shots are dropped, and 15% are held out for evaluation. A few hundred photographs are enough to start. A few thousand give more variety.
+This drops near-identical shots and holds out 15% for evaluation. A few hundred photographs are enough to start.
 
 ### 3. Train
 
@@ -38,47 +38,21 @@ Exact and near-identical shots are dropped, and 15% are held out for evaluation.
 uv run --no-sync gantrain train --data data/curated --out runs/mine --resolution 512 --width 768
 ```
 
-Samples appear in `runs/mine/samples` as training goes, and checkpoints in `runs/mine/checkpoints`. Stop and resume at any time with `--resume runs/mine/checkpoints/<step>.pt`.
+Samples appear in `runs/mine/samples` as training goes. Resume a run with `--resume runs/mine/checkpoints/<step>.pt`.
 
 ### 4. Play it live
 
 Convert a checkpoint with [ganlive](https://github.com/gustavecortal/ganlive#bring-your-own-gan) to play it in the browser, by hand or from drums.
 
-## Commands
-
-| Command | What it does |
-|---|---|
-| `device` | Show the GPU and the precision training will use |
-| `curate` | Scan photographs, drop duplicates, split train and test |
-| `train` | Train a FastGAN from scratch or resume a run |
-| `sample` | Write images from a checkpoint |
-| `video` | Render a looping latent interpolation |
-| `diversity` | Track how varied the samples are across a run (Vendi score) |
-| `evaluate` | Score generated images against held-out ones: FD-DINOv2, KID, CMMD, precision, recall, copies |
-
-Run `gantrain <command> --help` for every option.
-
 ## How it works
 
-```mermaid
-flowchart LR
-  P[photographs] -->|drop duplicates,<br/>hold out 15%| T[training set]
-  T -->|DiffAugment| D[discriminator:<br/>real or generated?<br/>reconstructs real images,<br/>scored with LPIPS]
-  Z[random latent] --> G[generator with<br/>skip-layer excitation]
-  G -->|DiffAugment| D
-  D -->|hinge loss| G
-  G --> C[checkpoints] -->|FD-DINOv2, KID,<br/>copies| E[evaluation on<br/>held-out photographs]
-```
+[FastGAN](https://arxiv.org/abs/2101.04775) is a GAN designed for small image sets. Its discriminator also learns to reconstruct the real images it judges, and [DiffAugment](https://arxiv.org/abs/2006.10738) keeps it from memorising them. `gantrain evaluate` scores generated images against the held-out photographs and looks for copies. `gantrain --help` lists the other commands.
 
-gantrain trains [FastGAN](https://arxiv.org/abs/2101.04775), a GAN designed for small image sets. The generator has skip-layer excitation. The discriminator also reconstructs the real images it judges, scored with [LPIPS](https://github.com/richzhang/PerceptualSimilarity), and [DiffAugment](https://arxiv.org/abs/2006.10738) keeps it from memorising a few hundred images. Training uses bf16 where the GPU supports it, otherwise fp32.
-
-The [published models](https://huggingface.co/collections/gustavecortal/ganlive-6ac56a61006a78b3e1ff5406), lichen at 3072×2048 and amber at 1536×1024, were trained on one $350 Intel Arc A770. amber's settings are a good starting point for your own run:
+The [published models](https://huggingface.co/collections/gustavecortal/ganlive-6ac56a61006a78b3e1ff5406) were trained on one $350 Intel Arc A770. amber's settings are a good start for your own run:
 
 ```bash
 uv run --no-sync gantrain train --data data/curated --out runs/amber --resolution 1024 --width 1536 --batch-size 16 --iterations 80000 --lr 3e-4 --lr-warmup 2000 --jacobian-weight 1.5 --compile
 ```
-
-`--jacobian-weight` keeps the latent space smooth, which makes the model nicer to play live. `--compile` makes each step about 1.3× faster at batch 16 and uses a third less GPU memory, after a one-off build of up to half an hour. It needs a C compiler.
 
 ## License
 
